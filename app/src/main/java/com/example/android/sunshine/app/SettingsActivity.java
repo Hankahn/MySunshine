@@ -15,11 +15,15 @@
  */
 package com.example.android.sunshine.app;
 
+import android.app.NotificationManager;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+
+import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.
@@ -73,11 +77,27 @@ public class SettingsActivity extends PreferenceActivity
             if (prefIndex >= 0) {
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
+        } else if (preference instanceof CheckBoxPreference) {
+            CheckBoxPreference checkBoxPreference = (CheckBoxPreference) preference;
+            if(!checkBoxPreference.isChecked()) {
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+                notificationManager.cancelAll();
+            }
         } else {
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);
+
+            SunshineSyncAdapter.syncImmediately(this);
+
         }
         return true;
     }
 
+//    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+//    @Override
+//    public Intent getParentActivityIntent() {
+//        return super.getParentActivityIntent().addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//    }
 }
